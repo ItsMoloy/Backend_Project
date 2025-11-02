@@ -63,3 +63,28 @@ exports.updateCategory = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Delete category
+exports.deleteCategory = async (req, res) => {
+  try {
+    // Check if category is associated with any products
+    const productsWithCategory = await Product.countDocuments({ category: req.params.id });
+
+    if (productsWithCategory > 0) {
+      return res.status(400).json({
+        error: 'Cannot delete category because it is associated with products',
+        count: productsWithCategory
+      });
+    }
+
+    const category = await Category.findByIdAndDelete(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    res.json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
