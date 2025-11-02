@@ -17,3 +17,13 @@ exports.createCategory = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get all categories
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find().select('-__v');
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
