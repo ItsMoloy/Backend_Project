@@ -87,3 +87,49 @@ exports.getProductById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+// Update product
+exports.updateProduct = async (req, res) => {
+  try {
+    const { description, discount, status } = req.body;
+
+    // Only allow updating specific fields
+    const updateData = {};
+    if (description !== undefined) updateData.description = description;
+    if (discount !== undefined) updateData.discount = discount;
+    if (status !== undefined) updateData.status = status;
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('category', 'name');
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const productObj = product.toObject();
+    productObj.finalPrice = product.finalPrice;
+
+    res.json(productObj);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Delete product
+exports.deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
