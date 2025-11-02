@@ -33,3 +33,19 @@ exports.validateProduct = (req, res, next) => {
 
   next();
 };
+
+// Validation middleware for category creation and updates
+exports.validateCategory = (req, res, next) => {
+  const { name } = req.body;
+  const errors = [];
+
+  if (!name) {
+    errors.push('Category name is required');
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
+  }
+
+  next();
+};
