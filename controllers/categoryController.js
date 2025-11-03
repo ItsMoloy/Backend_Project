@@ -6,17 +6,41 @@ exports.createCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
 
+    if (!name) {
+      return res.status(400).json({ message: 'Category name is required' });
+    }
+
+    const trimmedName = name.trim();
+
+    // If category already exists
+    const existing = await Category.findOne({ name: trimmedName });
+
+    if (existing) {
+      // If found, just return it instead of throwing duplicate error
+      return res.status(200).json({
+        message: 'Category already exists',
+        category: existing
+      });
+    }
+
+    // Create new category
     const category = new Category({
-      name,
-      description
+      name: trimmedName,
+      description: description?.trim() || ''
     });
 
     const savedCategory = await category.save();
-    res.status(201).json(savedCategory);
+
+    res.status(201).json({
+      message: 'Category created successfully',
+      category: savedCategory
+    });
+
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
+
 
 // Get all categories
 exports.getCategories = async (req, res) => {
